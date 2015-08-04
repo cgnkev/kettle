@@ -94,9 +94,9 @@ define(function (require, exports, module) {
     }
   }
 
-  function compileLess(content, documentPath) {
+  function compileCoffee(content, documentPath) {
     var deferred = new $.Deferred(),
-      connection = connectToNodeModule('LessCompiler'),
+      connection = connectToNodeModule('CoffeeCompiler'),
       options = loadOptions(documentPath);
 
     // connect to the node server & read the file
@@ -123,8 +123,15 @@ define(function (require, exports, module) {
 
   // Register for documentSaved events to support inline-editors
   $(DocumentManager).on('documentSaved', function (event, document) {
-    if (EditorManager.getCurrentFullEditor().document !== document && document.language.getId() === 'less') {
-      compileLess(document.getText(), document.file.fullPath);
+    var isCoffeeScript = false;
+    ['coffeescript', 'coffeescriptimproved'].forEach(function (mode) {
+      if (document.language.getId() === mode) {
+        isCoffeeScript = true;
+        return;
+      }
+    });
+    if (EditorManager.getCurrentFullEditor().document !== document && isCoffeeScript) {
+      compileCoffee(document.getText(), document.file.fullPath);
     }
   });
 
