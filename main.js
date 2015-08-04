@@ -114,14 +114,16 @@ define(function (require, exports, module) {
   }
 
   // Register for LESS files
-  CodeInspection.register('less', {
-    name: 'less-autocompile',
-    scanFileAsync: compileLess
+  ['coffeescript', 'coffeescriptimproved'].forEach(function (mode) {
+    CodeInspection.register(mode, {
+      name: 'kettle',
+      scanFileAsync: compileCoffee
+    });
   });
 
   // Register for documentSaved events to support inline-editors
   $(DocumentManager).on('documentSaved', function (event, document) {
-    if (EditorManager.getCurrentFullEditor().document !== document && document.getLanguage().getId() === 'less') {
+    if (EditorManager.getCurrentFullEditor().document !== document && document.language.getId() === 'less') {
       compileLess(document.getText(), document.file.fullPath);
     }
   });

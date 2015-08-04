@@ -4,9 +4,7 @@
 var path = require('path');
 var fs = require('fs');
 var extend = require('util')._extend;
-var less = require('less');
-var LessPluginAutoPrefix = require('less-plugin-autoprefix');
-var LessPluginCleanCSS = require('less-plugin-clean-css');
+var coffeeScript = require('coffee-script');
 var mkpath = require('mkpath');
 
 function readOptions(content) {
@@ -44,23 +42,23 @@ function mkfile(filepath, content, callback) {
 }
 
 // compile the given less file
-function compile(lessFile, defaults, callback) {
+function compile(coffeeFile, defaults, callback) {
 
-  fs.readFile(lessFile, function (err, buffer) {
+  fs.readFile(coffeeFile, function (err, buffer) {
     if (err) {
       return callback(err);
     }
 
     var content = buffer.toString();
     var options = extend(extend({}, defaults), readOptions(content));
-    var lessPath = path.dirname(lessFile);
-    var cssFilename;
-    var cssFile;
+    var coffeePath = path.dirname(coffeeFile);
+    var jsFilename;
+    var jsFile;
 
     // main is set: compile the referenced file instead
     if (options.main) {
-      lessFile = path.resolve(lessPath, options.main);
-      return compile(lessFile, defaults, callback);
+      coffeeFile = path.resolve(coffeePath, options.main);
+      return compile(coffeeFile, defaults, callback);
     }
 
     // out is null or false: do not compile
@@ -70,65 +68,46 @@ function compile(lessFile, defaults, callback) {
 
     // out is set: output to the given file name
     if (options.out) {
-      cssFilename = options.out;
-      if (path.extname(cssFilename) === '') {
-        cssFilename += '.css';
+      jsFilename = options.out;
+      if (path.extname(jsFilename) === '') {
+        jsFilename += '.js';
       }
       delete options.out;
     } else {
-      cssFilename = path.basename(lessFile);
-      cssFilename = cssFilename.substr(0, cssFilename.length - path.extname(cssFilename).length) + '.css';
+      jsFilename = path.basename(coffeeFile);
+      jsFilename = jsFilename.substr(0, jsFilename.length - path.extname(jsFilename).length) + '.js';
     }
-    cssFile = path.resolve(lessPath, cssFilename);
+    jsFile = path.resolve(coffeePath, jsFilename);
 
     // source map file name and url
-    // not supported with cleancss plugin
-    if (!options.cleancss && options.sourceMap) {
-      options.sourceMap = {};
-      options.sourceMap.sourceMapURL = options.sourceMapURL;
-      options.sourceMap.sourceMapBasepath = options.sourceMapBasepath || lessPath;
-      options.sourceMap.sourceMapRootpath = options.sourceMapRootpath;
-      options.sourceMap.outputSourceFiles = options.outputSourceFiles;
-      options.sourceMap.sourceMapFileInline = options.sourceMapFileInline;
-      if (options.sourceMapFileInline) {
-        options.sourceMap.sourceMapFileInline = true;
-      } else {
-        if (options.sourceMapFilename) {
-          options.sourceMapFilename = path.resolve(lessPath, options.sourceMapFilename);
-        } else {
-          options.sourceMapFilename = cssFile + '.map';
-        }
-        if (!options.sourceMap.sourceMapURL) {
-          options.sourceMap.sourceMapURL = path.relative(cssFile + path.sep + '..', options.sourceMapFilename);
-        }
-      }
-    }
+//    if (options.sourceMap) {
+//      options.sourceMap = {};
+//      options.sourceMap.sourceMapURL = options.sourceMapURL;
+//      options.sourceMap.sourceMapBasepath = options.sourceMapBasepath || lessPath;
+//      options.sourceMap.sourceMapRootpath = options.sourceMapRootpath;
+//      options.sourceMap.outputSourceFiles = options.outputSourceFiles;
+//      options.sourceMap.sourceMapFileInline = options.sourceMapFileInline;
+//      if (options.sourceMapFileInline) {
+//        options.sourceMap.sourceMapFileInline = true;
+//      } else {
+//        if (options.sourceMapFilename) {
+//          options.sourceMapFilename = path.resolve(lessPath, options.sourceMapFilename);
+//        } else {
+//          options.sourceMapFilename = cssFile + '.map';
+//        }
+//        if (!options.sourceMap.sourceMapURL) {
+//          options.sourceMap.sourceMapURL = path.relative(cssFile + path.sep + '..', options.sourceMapFilename);
+//        }
+//      }
+//    }
 
     // set the path
-    options.paths = [lessPath];
-    options.filename = lessFile;
+    options.paths = [coffeePath];
+    options.filename = jsFile;
     // options.rootpath = lessPath;
 
     // plugins
     options.plugins = [];
-
-    // autoprefixer
-    if (options.autoprefixer) {
-      var autoprefixerOptions = {};
-      if (typeof options.autoprefixer === 'string') {
-        autoprefixerOptions.browsers = options.autoprefixer.split(';');
-      }
-      options.plugins.push(new LessPluginAutoPrefix(autoprefixerOptions));
-    }
-
-    // clean-css
-    if (options.cleancss) {
-      var cleancssOptions = {};
-      if (typeof options.cleancss === 'string') {
-        cleancssOptions.compatibility = options.cleancss;
-      }
-      options.plugins.push(new LessPluginCleanCSS(cleancssOptions));
-    }
 
     // set up the parser
     less.render(content, options).then(function (output) {
