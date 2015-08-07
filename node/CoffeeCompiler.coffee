@@ -7,7 +7,9 @@ uglifyjs = require 'uglify-js'
 
 #require './node_modules.js'
 # Reads options at the head of a file
-# # out: index.js
+#   E.g.: # out: index.js
+#
+# @param [String] content input from which options are read.
 readOptions = (content) ->
   firstLine = content[0...content.indexOf '\n']
   match = /^\s*\#\s*(.+)/.exec firstLine
@@ -22,11 +24,15 @@ readOptions = (content) ->
       value = eval value
     options[key] = value
   options
-compile = (coffeeFile, defaults) ->
+
+# Compiles coffee-script file
+# @param [String] coffeeFile path of coffeescript file
+# @param [(err: Error) -> void] callback Handles errors
+compile = (coffeeFile, callback) ->
   fs.readFile coffeeFile, (err, buffer) ->
-    return err if err?
+    callback err if err?
     content = buffer.toString()
-    options = extend extend({}, defaults), readOptions content
+    options = extend {}, readOptions content
     coffeePath = path.dirname coffeeFile
     # Do not compile if out is none or false
     if options.out is 'none' or options.out is false
@@ -57,10 +63,10 @@ compile = (coffeeFile, defaults) ->
     try
       js = coffeeScript.compile content
       fse.outputFile jsFile, js, (err) ->
-        console.log err.message if err?
+        callback err if err?
     catch err
+      callback err
       console.log err.message
-      return
     if options.sourceMapFilename
       try
         map = coffeeScript.compile content, {
@@ -69,16 +75,17 @@ compile = (coffeeFile, defaults) ->
         }
         fse.outputFile options.sourceMapFilename,
           map.v3SourceMap, (err) ->
-            return err if err?
+            callback err if err?
       catch err
+        callback err
         console.log err.message
-        return
+    callback null, {}
+
 exports.init = (DomainManager) ->
   unless DomainManager.hasDomain 'CoffeeCompiler'
     DomainManager.registerDomain 'CoffeeCompiler', {
       major: 1
       minor: 0
     }
-    DomainManager.registerCommand 'CoffeeCompiler',
-      'compile', compile, true,
-      'Compiles a coffee-script file', ['coffeePath'], null
+    DomainManager.registerCommand 'CoffeeCompiler', 'compile', compile, true,
+      'Compiles a coffee-script file'

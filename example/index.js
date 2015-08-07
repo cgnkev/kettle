@@ -7,6 +7,6 @@
 
   f = "friend";
 
-  hey;
+  he;
 
 }).call(this);

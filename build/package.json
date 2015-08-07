@@ -1,8 +1,8 @@
 {
   "name": "kettle",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "title": "Kettle",
-  "description": "A Brackets extension that compiles coffeescript files.",
+  "description": "A Brackets extension that compiles coffeescript files upon saving.",
   "keywords": [
     "brackets-extension",
     "coffeescript",

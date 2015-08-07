@@ -2,7 +2,7 @@
 
 Kettle is an extension for the code editor Brackets that adds automatic compilation of CoffeeScript files upon saving.
 It is a fork of another [auto-compiler](https://github.com/jdiehl/brackets-less-autocompile/). It also supports
-`coffeescriptimproved` mode defined in the [giovannicalo's](https://github.com/giovannicalo) CoffeeScript
+`coffeescriptimproved` mode defined in [giovannicalo's](https://github.com/giovannicalo) CoffeeScript
 [extension](https://github.com/giovannicalo/brackets-coffeescript).
 
 
@@ -26,6 +26,11 @@ The following compile options are available:
 * sourceMapURL: source map url (Optional)
 * sourceMapRoot: source map root (Optional)
 
+### Changelog
+* 7 August, 2015 - v.1.1.0
+  * Added a status bar indicator that shows compilation status.
+* 6 August, 2015 - First Release (v.1.0.0)
+
 ### TODO
 
 * Add project-wide compilation options
@@ -33,6 +38,8 @@ The following compile options are available:
 * Hiding .js files after compilation
 * Hiding sourcemap files after compilation
 
+### Feedback
+Any feedback is highly appreciated. You can submit your feedback the Github way or leave a comment on [this page](http://brackets.dnbard.com/extension/kettle).
 ### FAQ
 
 How can I redirect the output to a separate file?

@@ -22,6 +22,7 @@ task 'build', 'build package for Brackets', (options) ->
       for file in files
         result = uglifyjs.minify file
         fse.outputFileSync "build/#{file}", result.code
+#        fse.copySync file, "build/#{file}"
       fileset 'README.md package.json', (err, files) ->
         console.log files
         for file in files

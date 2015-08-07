@@ -1,2 +1,2 @@
 # out: none
-square = (x) -> x ** v
+square = (x) -> x ** r
